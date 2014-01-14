@@ -5,20 +5,15 @@ import com.google.common.base.Throwables;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.inject.AbstractModule;
-import com.google.inject.Provider;
 import com.google.inject.TypeLiteral;
 import com.google.inject.name.Names;
-import com.google.inject.util.Types;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import com.typesafe.config.ConfigValue;
 import com.typesafe.config.ConfigValueType;
 
 import java.lang.reflect.Field;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 /**
  * CHANGEME
@@ -53,10 +48,9 @@ public abstract class ConfigModule extends AbstractModule {
             if (field.getType().equals(String.class)) {
 
                 ValueType valueType = field.getAnnotation(ValueType.class);
-                ListValueType listValueType = field.getAnnotation(ListValueType.class);
-                SetValueType setValueType = field.getAnnotation(SetValueType.class);
 
                 Class type;
+                Class<? extends Collection> ctype;
                 String key = null;
 
                 try {
@@ -75,31 +69,31 @@ public abstract class ConfigModule extends AbstractModule {
                     bind(type)
                             .annotatedWith(Names.named(key))
                             .toInstance(buildObject(type, config.getString(key)));
-                } else if (listValueType != null) {
-                    type = listValueType.value();
-
-                    final List list = buildList(type, key);
-                    Provider provider = new Provider<Object>() {
-                        @Override
-                        public Object get() {
-                            return list;
-                        }
-                    };
-                    bind(TypeLiteral.get(Types.listOf(type)))
-                            .annotatedWith(Names.named(key))
-                            .toProvider(provider);
-                } else if (setValueType != null) {
-                    type = setValueType.value();
-                    final Set set = buildSet(type, key);
-                    Provider provider = new Provider<Object>() {
-                        @Override
-                        public Object get() {
-                            return set;
-                        }
-                    };
-                    bind(TypeLiteral.get(Types.setOf(type)))
-                            .annotatedWith(Names.named(key))
-                            .toProvider(provider);
+//                } else if (listValueType != null) {
+//                    type = listValueType.value();
+//
+//                    final List list = buildList(type, key);
+//                    Provider provider = new Provider<Object>() {
+//                        @Override
+//                        public Object get() {
+//                            return list;
+//                        }
+//                    };
+//                    bind(TypeLiteral.get(Types.listOf(type)))
+//                            .annotatedWith(Names.named(key))
+//                            .toProvider(provider);
+//                } else if (setValueType != null) {
+//                    type = setValueType.value();
+//                    final Set set = buildSet(type, key);
+//                    Provider provider = new Provider<Object>() {
+//                        @Override
+//                        public Object get() {
+//                            return set;
+//                        }
+//                    };
+//                    bind(TypeLiteral.get(Types.setOf(type)))
+//                            .annotatedWith(Names.named(key))
+//                            .toProvider(provider);
                 } else {
                     ConfigValue val = config.getValue(key);
                     if (val.valueType() == ConfigValueType.STRING) {

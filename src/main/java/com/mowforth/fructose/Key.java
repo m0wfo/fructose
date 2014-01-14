@@ -9,7 +9,7 @@ import java.lang.annotation.Target;
  * CHANGEME
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.FIELD)
-public @interface SetValueType {
-	Class<?> value();
+@Target(ElementType.PARAMETER)
+public @interface Key {
+    String value();
 }
